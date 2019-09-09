@@ -1,0 +1,24 @@
+plugins {
+    id 'org.springframework.boot' version '2.1.8.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'java'
+}
+
+group = 'web'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation group: 'net.java.dev.jna', name: 'jna', version: '4.5.2'
+    implementation 'org.apache.commons:commons-lang3:3.0'
+    implementation 'com.google.guava:guava:28.0-jre'
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
+    implementation 'org.projectlombok:lombok'
+    implementation 'org.springframework:spring-core:5.1.8.RELEASE'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.5.1'
+    testImplementation 'org.assertj:assertj-core:3.12.2'
+}
