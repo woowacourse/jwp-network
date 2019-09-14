@@ -18,12 +18,11 @@ public class PacketHandler implements Closeable {
     private final Pointer handle;
     private final TimestampPrecision timestampPrecision;
 
-    public Packet sendPacket(Packet packet) throws PacketNativeException {
+    public void sendPacket(Packet packet) throws PacketNativeException {
         if (packet == null) {
             throw new NullPointerException("packet may not be null");
         }
         sendPacket(packet.getRawData());
-        return packet;
     }
 
     public void sendPacket(byte[] bytes) throws PacketNativeException {

@@ -117,8 +117,8 @@ public class IpPacket implements Packet {
             rawFields.add(ByteUtils.toByteArray(ttl));
             rawFields.add(ByteUtils.toByteArray(protocolIdentifier.getValue()));
             rawFields.add(ByteUtils.toByteArray(zeroInsteadOfChecksum ? (short) 0 : headerChecksum));
-            rawFields.add(ByteUtils.toByteArray(dstAddr));
             rawFields.add(ByteUtils.toByteArray(srcAddr));
+            rawFields.add(ByteUtils.toByteArray(dstAddr));
             rawFields.add(padding);
             return rawFields;
         }

@@ -1,6 +1,10 @@
 package web.protocol.helper;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import web.protocol.ethernet.EthernetPacket;
+import web.protocol.ethernet.EthernetPacketTest;
+import web.tool.NetInfo;
 import web.tool.packet.NetworkInterface;
 import web.tool.packet.NetworkInterfaceService;
 import web.tool.packet.PacketHandler;
@@ -8,6 +12,27 @@ import web.tool.packet.PacketNativeException;
 import web.tool.packet.dump.TcpDump;
 
 public class PacketTestHelper {
+    private static final String PCAP_FILE_KEY = EthernetPacketTest.class.getName() + ".pcapFile";
+    public static final String PCAP_FILE = System.getProperty(PCAP_FILE_KEY, "Dump.pcap");
+
+    public static PacketHandler handler;
+    public static String nicName;
+    public static String macAddress;
+    public static String localIp;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        NetInfo netInfo = new NetInfo();
+        nicName = netInfo.getNic();
+        macAddress = netInfo.getMacAddress();
+        localIp = netInfo.getIp();
+        handler = getHandler(nicName);
+    }
+
+    @AfterEach
+    void tearDown() {
+        handler.close();
+    }
 
     public static PacketHandler getHandler(String nicName) throws Exception {
         NetworkInterface nif = NetworkInterfaceService.findByName(nicName);
