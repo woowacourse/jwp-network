@@ -13,6 +13,7 @@ repositories {
 }
 
 dependencies {
+    implementation files("${rootDir}/lib/sigar.jar")
     implementation group: 'net.java.dev.jna', name: 'jna', version: '4.5.2'
     implementation 'org.apache.commons:commons-lang3:3.0'
     implementation 'com.google.guava:guava:28.0-jre'
