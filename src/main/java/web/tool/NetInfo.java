@@ -3,8 +3,12 @@ package web.tool;
 import org.hyperic.sigar.NetInterfaceConfig;
 import org.hyperic.sigar.SigarException;
 import org.hyperic.sigar.cmd.SigarCommandBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NetInfo extends SigarCommandBase {
+
+    private static final Logger log = LoggerFactory.getLogger(NetInfo.class);
 
     public String getMacAddress() throws SigarException {
         return this.sigar.getNetInterfaceConfig(null).getHwaddr();
@@ -21,25 +25,15 @@ public class NetInfo extends SigarCommandBase {
     @Override
     public void output(String[] strings) throws SigarException {
         NetInterfaceConfig config = this.sigar.getNetInterfaceConfig(null);
-        println("primary interface....." + config.getName());
-
-        println("primary ip address...." + config.getAddress());
-
-        println("primary mac address..." + config.getHwaddr());
-
-        println("primary netmask......." + config.getNetmask());
-
+        log.debug("primary interface : {}", config.getName());
+        log.debug("primary ip address : {}", config.getAddress());
+        log.debug("primary mac address : {}", config.getHwaddr());
+        log.debug("primary netmask : {}", config.getNetmask());
         org.hyperic.sigar.NetInfo info = this.sigar.getNetInfo();
-
-        println("host name............." + info.getHostName());
-
-        println("domain name..........." + info.getDomainName());
-
-        println("default gateway......." + info.getDefaultGateway());
-
-        println("primary dns..........." + info.getPrimaryDns());
-
-        println("secondary dns........." + info.getSecondaryDns());
+        log.debug("host name : {}", info.getHostName());
+        log.debug("domain name : {}", info.getDomainName());
+        log.debug("default gateway : {}", info.getDefaultGateway());
+        log.debug("primary dns : {}", info.getPrimaryDns());
     }
 
     public static void main(String[] args) throws Exception {
