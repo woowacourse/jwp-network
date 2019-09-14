@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 import util.ByteUtils;
 import web.protocol.Packet;
 import web.protocol.SimplePacket;
-import web.protocol.helper.PacketTestHelper;
 import web.protocol.ethernet.EthernetPacket.EthernetHeader;
+import web.protocol.helper.PacketTestHelper;
 import web.tool.packet.PacketNativeException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,6 +20,9 @@ public class EthernetPacketTest extends PacketTestHelper {
     void send() throws Exception {
         EthernetPacket expected = new EthernetPacket(createEthernetHeader(ARP), new SimplePacket());
         handler.sendPacket(expected);
+        handler.loop(5, listener);
+
+        assertThat(packetStorage.exist(expected)).isTrue();
     }
 
     @Test
