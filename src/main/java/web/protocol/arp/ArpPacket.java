@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import util.ByteUtils;
 import web.protocol.Packet;
 import web.protocol.ethernet.MacAddress;
 import web.protocol.ethernet.Type;

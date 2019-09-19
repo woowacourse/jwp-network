@@ -29,6 +29,9 @@ class IpPacketTest extends PacketTestHelper {
         IpPacket ipPacket = new IpPacket(createIpHeader(), new SimplePacket());
         EthernetPacket expected = new EthernetPacket(createEthernetHeader(IPV4), ipPacket);
         handler.sendPacket(expected);
+        handler.loop(5, listener);
+
+        assertThat(packetStorage.exist(expected)).isTrue();
     }
 
     public static IpHeader createIpHeader() {
