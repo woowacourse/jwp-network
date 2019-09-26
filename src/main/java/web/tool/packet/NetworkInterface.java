@@ -1,26 +1,28 @@
 package web.tool.packet;
 
 import com.sun.jna.Native;
-import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import util.ByteUtils;
+import org.hyperic.sigar.SigarException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import web.protocol.ethernet.MacAddress;
-import web.tool.packet.NativeMappings.pcap_addr;
+import web.tool.NetInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static web.protocol.ethernet.MacAddress.SIZE_IN_BYTES;
 import static web.tool.packet.PacketHandler.TimestampPrecision.MICRO;
 
 @Getter
 @ToString
 public class NetworkInterface {
+    private static final Logger log = LoggerFactory.getLogger(NetworkInterface.class);
+
     private static final int LOOPBACK_CONDITION = 0x00000001;
     private static final int UP_CONDITION = 0x00000002;
     private static final int RUNNING_CONDITION = 0x00000004;
@@ -40,7 +42,7 @@ public class NetworkInterface {
         this.up = (pif.getFlags() & UP_CONDITION) != 0;
         this.running = (pif.getFlags() & RUNNING_CONDITION) != 0;
         this.local = local;
-        addMacAddress(pif);
+        addMacAddress();
     }
 
     public static NetworkInterface of(NativeMappings.pcap_if pif, boolean local) {
@@ -61,59 +63,13 @@ public class NetworkInterface {
                 .build();
     }
 
-    private void addMacAddress(NativeMappings.pcap_if pif) {
-        for (pcap_addr pcapAddr = pif.getAddresses(); pcapAddr != null; pcapAddr = pcapAddr.getNext()) {
-            if (isBlankAddress(pcapAddr)) {
-                continue;
-            }
-
-            int addrLength = getAddrLength(pcapAddr);
-            if (isBlank(addrLength)) {
-                continue;
-            }
-
-            MacAddress macAddress = getMacAddress(getAddr(pcapAddr), addrLength);
-            macAddresses.add(macAddress);
+    private void addMacAddress() {
+        NetInfo netInfo = new NetInfo();
+        try {
+            macAddresses.add(MacAddress.getByName(netInfo.getMacAddress()));
+        } catch (SigarException e) {
+            log.error(e.getMessage());
         }
-    }
-
-    private MacAddress getMacAddress(byte[] addr, int addrLength) {
-        return (Platform.isLinux())
-                ? getMacAddressByLinux(addr, addrLength)
-                : MacAddress.getByAddress(addr);
-    }
-
-    private boolean isBlank(int addrLength) {
-        return addrLength == 0;
-    }
-
-    private byte[] getAddr(NativeMappings.pcap_addr pcapAddr) {
-        return (Platform.isLinux())
-                ? new NativeMappings.sockaddr_ll(pcapAddr.getAddr().getPointer()).getSll_addr()
-                : new NativeMappings.sockaddr_dl(pcapAddr.getAddr().getPointer()).getAddress();
-    }
-
-    private int getAddrLength(NativeMappings.pcap_addr pcapAddr) {
-        return (Platform.isLinux())
-                ? new NativeMappings.sockaddr_ll(pcapAddr.getAddr().getPointer()).getSll_halen() & 0xFF
-                : new NativeMappings.sockaddr_dl(pcapAddr.getAddr().getPointer()).getAddress().length;
-    }
-
-    private boolean isBlankAddress(NativeMappings.pcap_addr pcapAddr) {
-        return pcapAddr.getAddr() == null
-                && pcapAddr.getNetmask() == null
-                && pcapAddr.getBroadaddr() == null
-                && pcapAddr.getDstaddr() == null;
-    }
-
-    private MacAddress getMacAddressByLinux(byte[] addr, int addrLength) {
-        return (addrLength == SIZE_IN_BYTES)
-                ? ByteUtils.getMacAddress(addr, 0)
-                : MacAddress.getByAddress(ByteUtils.getSubArray(addr, 0, getAddrLength(addr, addrLength)));
-    }
-
-    private int getAddrLength(byte[] addr, int addrLength) {
-        return addrLength <= addr.length ? addrLength : addr.length;
     }
 
     private boolean isNullOrBlank(Errbuf errbuf, Pointer handle) {
